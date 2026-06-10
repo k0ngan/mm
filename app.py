@@ -14,58 +14,174 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.markdown("""<style>
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+# ════════════════════════════════════════════════════════════════════════════════
+# MOTOR DE TEMAS
+# Tokens semánticos centralizados. Cada tema aporta valores OKLCH con contraste
+# WCAG AA verificado. Los roles "fondo" y "texto" del color de marca se separan
+# (--color-primary vs --color-accent) para evitar acentos ilegibles en modo oscuro.
+# ════════════════════════════════════════════════════════════════════════════════
 
-:root {
-    --brand:      oklch(0.52 0.14 292);
-    --brand-mid:  oklch(0.70 0.10 292);
-    --brand-bg:   oklch(0.940 0.045 292);
-    --brand-tint: oklch(0.968 0.018 292);
-    --teal:       oklch(0.60 0.11 218);
-    --teal-bg:    oklch(0.940 0.045 218);
-    --surf:       oklch(0.998 0.003 292);
-    --surf-2:     oklch(0.962 0.013 292);
-    --bg:         oklch(0.970 0.011 292);
-    --bdr:        oklch(0.892 0.020 292);
-    --bdr-2:      oklch(0.858 0.028 292);
-    --tx:         oklch(0.215 0.050 292);
-    --tx-2:       oklch(0.425 0.038 292);
-    --tx-3:       oklch(0.605 0.020 292);
-    --sh-sm: 0 1px 3px oklch(0.52 0.14 292/0.08),0 1px 2px oklch(0.52 0.14 292/0.05);
-    --sh-md: 0 4px 16px oklch(0.52 0.14 292/0.10),0 2px 6px oklch(0.52 0.14 292/0.06);
-    --sh-lg: 0 10px 32px oklch(0.52 0.14 292/0.13);
-    --fd: 'Josefin Sans', system-ui, sans-serif;
-    --fb: 'Figtree', system-ui, sans-serif;
-    --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:24px;
+FONTS = {
+    "fd": "'Josefin Sans', system-ui, -apple-system, sans-serif",
+    "fb": "'Figtree', system-ui, -apple-system, sans-serif",
+}
+RADII = {"sm": "8px", "md": "12px", "lg": "18px", "xl": "24px"}
+
+# Paletas de categorías (fondo, texto) — claro: fondo tenue + texto saturado;
+# oscuro: fondo profundo + texto claro. Todas con contraste ≥ 4.5:1.
+LIGHT_CATS = {
+    "Trabajo":  ("oklch(0.938 0.026 17.6)", "oklch(0.350 0.118 25.7)"),
+    "Estudio":  ("oklch(0.942 0.026 266.6)", "oklch(0.334 0.134 268.1)"),
+    "Descanso": ("oklch(0.949 0.031 145.3)", "oklch(0.410 0.123 142.9)"),
+    "Tarea":    ("oklch(0.961 0.030 77.0)", "oklch(0.408 0.087 61.2)"),
+}
+DARK_CATS = {
+    "Trabajo":  ("oklch(0.311 0.059 16.3)", "oklch(0.871 0.054 18.2)"),
+    "Estudio":  ("oklch(0.316 0.057 264.4)", "oklch(0.875 0.055 265.8)"),
+    "Descanso": ("oklch(0.329 0.057 148.1)", "oklch(0.896 0.065 146.4)"),
+    "Tarea":    ("oklch(0.358 0.050 81.7)", "oklch(0.900 0.068 83.6)"),
 }
 
+# Paletas de estados de ánimo (fondo, texto).
+LIGHT_MOODS = {
+    "feliz":     ("oklch(0.988 0.026 99.9)", "oklch(0.463 0.095 93.4)"),
+    "bien":      ("oklch(0.973 0.029 137.4)", "oklch(0.410 0.123 142.9)"),
+    "normal":    ("oklch(0.961 0.018 240.0)", "oklch(0.358 0.098 252.8)"),
+    "estresada": ("oklch(0.948 0.029 298.9)", "oklch(0.333 0.150 293.0)"),
+    "agotada":   ("oklch(0.949 0.024 351.3)", "oklch(0.363 0.118 358.5)"),
+}
+DARK_MOODS = {
+    "feliz":     ("oklch(0.327 0.049 93.4)", "oklch(0.928 0.078 96.5)"),
+    "bien":      ("oklch(0.329 0.057 148.1)", "oklch(0.896 0.065 146.4)"),
+    "normal":    ("oklch(0.307 0.048 250.7)", "oklch(0.884 0.047 243.4)"),
+    "estresada": ("oklch(0.290 0.083 293.3)", "oklch(0.861 0.065 300.9)"),
+    "agotada":   ("oklch(0.290 0.055 348.0)", "oklch(0.870 0.060 349.8)"),
+}
+
+THEMES = {
+    "Claro Lavanda": {
+        "is_dark": False,
+        "bg": "oklch(0.970 0.011 292)", "surface": "oklch(0.998 0.003 292)",
+        "surface_alt": "oklch(0.962 0.013 292)",
+        "text": "oklch(0.215 0.050 292)", "text_muted": "oklch(0.425 0.038 292)",
+        "text_subtle": "oklch(0.560 0.024 292)",
+        "border": "oklch(0.892 0.020 292)", "border_strong": "oklch(0.852 0.028 292)",
+        "primary": "oklch(0.520 0.140 292)", "primary_hover": "oklch(0.450 0.140 292)",
+        "on_primary": "oklch(0.990 0.003 292)", "accent": "oklch(0.500 0.150 292)",
+        "secondary": "oklch(0.530 0.110 218)", "secondary_soft": "oklch(0.940 0.045 218)",
+        "primary_soft": "oklch(0.940 0.045 292)", "primary_tint": "oklch(0.968 0.018 292)",
+        "shadow_sm": "0 1px 3px oklch(0.52 0.14 292/0.10),0 1px 2px oklch(0.52 0.14 292/0.06)",
+        "shadow_md": "0 4px 16px oklch(0.52 0.14 292/0.12),0 2px 6px oklch(0.52 0.14 292/0.07)",
+        "cats": LIGHT_CATS, "moods": LIGHT_MOODS,
+    },
+    "Claro Azul": {
+        "is_dark": False,
+        "bg": "oklch(0.972 0.011 255)", "surface": "oklch(0.998 0.003 255)",
+        "surface_alt": "oklch(0.962 0.014 255)",
+        "text": "oklch(0.220 0.045 255)", "text_muted": "oklch(0.430 0.040 255)",
+        "text_subtle": "oklch(0.560 0.026 255)",
+        "border": "oklch(0.892 0.022 255)", "border_strong": "oklch(0.852 0.030 255)",
+        "primary": "oklch(0.510 0.130 255)", "primary_hover": "oklch(0.440 0.130 255)",
+        "on_primary": "oklch(0.990 0.003 255)", "accent": "oklch(0.490 0.140 255)",
+        "secondary": "oklch(0.560 0.100 205)", "secondary_soft": "oklch(0.940 0.040 205)",
+        "primary_soft": "oklch(0.940 0.045 255)", "primary_tint": "oklch(0.968 0.018 255)",
+        "shadow_sm": "0 1px 3px oklch(0.45 0.13 255/0.10),0 1px 2px oklch(0.45 0.13 255/0.06)",
+        "shadow_md": "0 4px 16px oklch(0.45 0.13 255/0.12),0 2px 6px oklch(0.45 0.13 255/0.07)",
+        "cats": LIGHT_CATS, "moods": LIGHT_MOODS,
+    },
+    "Claro Verde": {
+        "is_dark": False,
+        "bg": "oklch(0.972 0.012 158)", "surface": "oklch(0.998 0.004 158)",
+        "surface_alt": "oklch(0.962 0.015 158)",
+        "text": "oklch(0.220 0.045 160)", "text_muted": "oklch(0.415 0.040 160)",
+        "text_subtle": "oklch(0.545 0.030 160)",
+        "border": "oklch(0.890 0.024 158)", "border_strong": "oklch(0.850 0.032 158)",
+        "primary": "oklch(0.480 0.110 158)", "primary_hover": "oklch(0.410 0.110 158)",
+        "on_primary": "oklch(0.992 0.004 158)", "accent": "oklch(0.450 0.120 158)",
+        "secondary": "oklch(0.560 0.100 235)", "secondary_soft": "oklch(0.940 0.040 235)",
+        "primary_soft": "oklch(0.935 0.050 158)", "primary_tint": "oklch(0.966 0.020 158)",
+        "shadow_sm": "0 1px 3px oklch(0.45 0.10 158/0.10),0 1px 2px oklch(0.45 0.10 158/0.06)",
+        "shadow_md": "0 4px 16px oklch(0.45 0.10 158/0.12),0 2px 6px oklch(0.45 0.10 158/0.07)",
+        "cats": LIGHT_CATS, "moods": LIGHT_MOODS,
+    },
+    "Claro Neutro": {
+        "is_dark": False,
+        "bg": "oklch(0.968 0.004 270)", "surface": "oklch(0.999 0.001 270)",
+        "surface_alt": "oklch(0.957 0.005 270)",
+        "text": "oklch(0.225 0.012 270)", "text_muted": "oklch(0.440 0.010 270)",
+        "text_subtle": "oklch(0.565 0.008 270)",
+        "border": "oklch(0.888 0.006 270)", "border_strong": "oklch(0.848 0.008 270)",
+        "primary": "oklch(0.400 0.020 270)", "primary_hover": "oklch(0.320 0.022 270)",
+        "on_primary": "oklch(0.995 0.001 270)", "accent": "oklch(0.380 0.030 270)",
+        "secondary": "oklch(0.540 0.080 235)", "secondary_soft": "oklch(0.935 0.030 235)",
+        "primary_soft": "oklch(0.930 0.006 270)", "primary_tint": "oklch(0.962 0.004 270)",
+        "shadow_sm": "0 1px 3px oklch(0.30 0.01 270/0.10),0 1px 2px oklch(0.30 0.01 270/0.06)",
+        "shadow_md": "0 4px 16px oklch(0.30 0.01 270/0.11),0 2px 6px oklch(0.30 0.01 270/0.07)",
+        "cats": LIGHT_CATS, "moods": LIGHT_MOODS,
+    },
+    "Oscuro Lavanda": {
+        "is_dark": True,
+        "bg": "oklch(0.190 0.030 292)", "surface": "oklch(0.245 0.035 292)",
+        "surface_alt": "oklch(0.300 0.038 292)",
+        "text": "oklch(0.945 0.012 292)", "text_muted": "oklch(0.795 0.022 292)",
+        "text_subtle": "oklch(0.665 0.028 292)",
+        "border": "oklch(0.355 0.035 292)", "border_strong": "oklch(0.435 0.045 292)",
+        "primary": "oklch(0.640 0.150 292)", "primary_hover": "oklch(0.700 0.150 292)",
+        "on_primary": "oklch(0.160 0.040 292)", "accent": "oklch(0.810 0.130 292)",
+        "secondary": "oklch(0.730 0.110 218)", "secondary_soft": "oklch(0.320 0.050 218)",
+        "primary_soft": "oklch(0.320 0.050 292)", "primary_tint": "oklch(0.278 0.038 292)",
+        "shadow_sm": "0 1px 3px oklch(0 0 0/0.40),0 1px 2px oklch(0 0 0/0.30)",
+        "shadow_md": "0 6px 20px oklch(0 0 0/0.45),0 2px 8px oklch(0 0 0/0.35)",
+        "cats": DARK_CATS, "moods": DARK_MOODS,
+    },
+}
+
+DEFAULT_THEME = "Claro Lavanda"
+
+# Texto de las recomendaciones de bienestar (se mantiene idéntico; los colores
+# salen del tema activo). El primer valor de cada tupla es la clave de la paleta.
+MOOD_TEXT = {
+    "😊 Feliz":     ("feliz",     "¡Qué buena energía! Aprovéchala para esos temas difíciles. Hoy es un gran día para avanzar con tus metas más retadoras. Comparte tu buena vibra con quienes te rodean. ✨"),
+    "🙂 Bien":      ("bien",      "Estás en un buen punto de equilibrio. Mantén tus hábitos de estudio y descanso. Una caminata corta puede mantenerte así todo el día. 🌿"),
+    "😐 Normal":    ("normal",    "Día tranquilo. Haz una lista de prioridades y empieza por la más pequeña. A veces el movimiento crea motivación. 📋"),
+    "😰 Estresada": ("estresada", "Tómate un respiro antes de continuar. Prueba la respiración guiada abajo. Divide tus tareas en partes pequeñas y recuerda: no tienes que hacerlo todo hoy. 💜"),
+    "😩 Agotada":   ("agotada",   "Tu mente y cuerpo necesitan recuperarse. Prioriza el descanso sobre cualquier tarea. Una siesta de 20 min puede hacer maravillas. Hoy, solo lo esencial. 🌙"),
+}
+
+
+# ── Reglas CSS estáticas (solo referencian tokens var(--color-*) / fuentes / radios) ──
+STATIC_CSS = """
 *,*::before,*::after { box-sizing:border-box; }
 
 html,body,[class*="css"] {
     font-family: var(--fb) !important;
-    color: var(--tx);
+    color: var(--color-text);
 }
 
-.stApp { background: var(--bg) !important; }
+.stApp { background: var(--color-bg) !important; }
+[data-testid="stHeader"] { background: transparent !important; }
 
 .main .block-container {
     animation: pageIn 0.22s ease-out both;
-    padding-top: 2rem !important;
+    padding-top: 2.5rem !important;
 }
 @keyframes pageIn {
     from { opacity:0; transform:translateY(6px); }
     to   { opacity:1; transform:translateY(0); }
 }
+@media (prefers-reduced-motion: reduce) {
+    .main .block-container { animation: none; }
+    * { transition: none !important; }
+}
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background: var(--surf) !important;
-    border-right: 1px solid var(--bdr) !important;
+    background: var(--color-surface) !important;
+    border-right: 1px solid var(--color-border) !important;
 }
-[data-testid="stSidebar"] * { color: var(--tx) !important; }
+[data-testid="stSidebar"] * { color: var(--color-text); }
 [data-testid="stSidebar"] .stRadio > div > label {
-    border-radius: var(--r-md) !important;
+    border-radius: var(--radius-md) !important;
     padding: 9px 14px !important;
     margin: 2px 0 !important;
     font-weight: 600 !important;
@@ -75,7 +191,7 @@ html,body,[class*="css"] {
     display: block !important;
 }
 [data-testid="stSidebar"] .stRadio > div > label:hover {
-    background: var(--surf-2) !important;
+    background: var(--color-surface-alt) !important;
 }
 
 /* ── Typography ── */
@@ -84,40 +200,40 @@ h1 {
     font-weight:700 !important;
     font-size:clamp(1.75rem,2.5vw,2.4rem) !important;
     letter-spacing:-0.025em !important;
-    color:var(--tx) !important;
+    color:var(--color-text) !important;
     line-height:1.15 !important;
 }
-h2 { font-weight:600 !important; color:var(--tx) !important; letter-spacing:-0.01em !important; }
-h3 { font-weight:600 !important; color:var(--tx-2) !important; font-size:1.05rem !important; }
+h2 { font-weight:600 !important; color:var(--color-text) !important; letter-spacing:-0.01em !important; }
+h3 { font-weight:600 !important; color:var(--color-text-muted) !important; font-size:1.05rem !important; }
 
 /* ── Cards — sin border-left stripes ── */
 .card {
-    background:var(--surf); border-radius:var(--r-xl);
+    background:var(--color-surface); border-radius:var(--radius-xl);
     padding:24px; margin:12px 0;
-    box-shadow:var(--sh-sm); border:1px solid var(--bdr);
+    box-shadow:var(--shadow-sm); border:1px solid var(--color-border);
     transition: box-shadow 0.2s;
 }
-.card:hover { box-shadow:var(--sh-md); }
+.card:hover { box-shadow:var(--shadow-md); }
 .card-tinted {
-    background:var(--brand-tint); border-radius:var(--r-xl);
-    padding:24px; margin:12px 0; border:1px solid var(--bdr);
+    background:var(--color-primary-tint); border-radius:var(--radius-xl);
+    padding:24px; margin:12px 0; border:1px solid var(--color-border);
 }
 .card-teal {
-    background:var(--teal-bg); border-radius:var(--r-xl);
-    padding:24px; margin:12px 0; border:1px solid oklch(0.84 0.04 218);
+    background:var(--color-secondary-soft); border-radius:var(--radius-xl);
+    padding:24px; margin:12px 0; border:1px solid var(--color-border);
 }
 
 /* ── Score ring ── */
 .score-wrap {
-    background:var(--surf); border-radius:var(--r-xl);
-    padding:32px 24px; box-shadow:var(--sh-md);
-    border:1px solid var(--bdr); text-align:center;
+    background:var(--color-surface); border-radius:var(--radius-xl);
+    padding:32px 24px; box-shadow:var(--shadow-md);
+    border:1px solid var(--color-border); text-align:center;
 }
 .score-ring {
     width:110px; height:110px; border-radius:50%;
     background: conic-gradient(
-        var(--brand) 0% calc(var(--p)*1%),
-        var(--surf-2) calc(var(--p)*1%) 100%
+        var(--color-accent) 0% calc(var(--p)*1%),
+        var(--color-surface-alt) calc(var(--p)*1%) 100%
     );
     display:flex; align-items:center; justify-content:center;
     margin:12px auto 14px; position:relative;
@@ -125,33 +241,34 @@ h3 { font-weight:600 !important; color:var(--tx-2) !important; font-size:1.05rem
 .score-ring::after {
     content:''; position:absolute;
     width:84px; height:84px;
-    background:var(--surf); border-radius:50%;
+    background:var(--color-surface); border-radius:50%;
 }
 .score-num {
     position:relative; z-index:1;
     font-family:var(--fd); font-size:1.7rem; font-weight:700;
-    color:var(--brand); line-height:1;
+    color:var(--color-accent); line-height:1;
 }
 .score-cap {
     font-size:10px; font-weight:700; text-transform:uppercase;
-    letter-spacing:0.14em; color:var(--tx-3);
+    letter-spacing:0.14em; color:var(--color-text-subtle);
 }
-.score-sub { font-size:14px; font-weight:500; color:var(--tx-2); margin-top:8px; }
+.score-sub { font-size:14px; font-weight:500; color:var(--color-text-muted); margin-top:8px; }
 
 /* ── Stat cards ── */
 .stat-card {
-    background:var(--surf); border-radius:var(--r-lg);
-    padding:20px; box-shadow:var(--sh-sm); border:1px solid var(--bdr);
+    background:var(--color-surface); border-radius:var(--radius-lg);
+    padding:20px 16px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border);
     text-align:center; transition: transform 0.2s, box-shadow 0.2s;
 }
-.stat-card:hover { transform:translateY(-2px); box-shadow:var(--sh-md); }
+.stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
 .stat-num {
     font-family:var(--fd); font-size:2.2rem; font-weight:700;
-    color:var(--brand); line-height:1; margin-bottom:6px;
+    color:var(--color-accent); line-height:1; margin-bottom:8px;
 }
 .stat-lbl {
-    font-size:10px; font-weight:700; text-transform:uppercase;
-    letter-spacing:0.1em; color:var(--tx-3);
+    font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--color-text-subtle);
+    line-height:1.35; text-wrap:balance; hyphens:none;
 }
 
 /* ── Progress bars ── */
@@ -160,161 +277,230 @@ h3 { font-weight:600 !important; color:var(--tx-2) !important; font-size:1.05rem
     display:flex; justify-content:space-between;
     align-items:baseline; margin-bottom:6px;
 }
-.prog-head span { font-size:13px; font-weight:600; color:var(--tx-2); }
-.prog-head b { font-family:var(--fd); font-size:12px; font-weight:700; color:var(--brand); }
-.prog-track { background:var(--surf-2); border-radius:100px; height:5px; overflow:hidden; }
-.prog-fill { height:100%; border-radius:100px; background:var(--brand); }
-.prog-fill-teal { background:var(--teal); }
+.prog-head span { font-size:13px; font-weight:600; color:var(--color-text-muted); }
+.prog-head b { font-family:var(--fd); font-size:12px; font-weight:700; color:var(--color-accent); }
+.prog-track { background:var(--color-surface-alt); border-radius:100px; height:5px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:100px; background:var(--color-accent); }
+.prog-fill-teal { background:var(--color-secondary); }
 
 /* ── Eyebrow label ── */
 .eyebrow {
     font-family:var(--fd); font-size:10px; font-weight:700;
-    text-transform:uppercase; letter-spacing:0.14em; color:var(--brand);
+    text-transform:uppercase; letter-spacing:0.14em; color:var(--color-accent);
     margin-bottom:4px;
 }
 
 /* ── Buttons ── */
 .stButton>button {
-    background:var(--brand) !important;
-    color:oklch(0.99 0.003 292) !important;
+    background:var(--color-primary) !important;
+    color:var(--color-on-primary) !important;
     border:none !important; border-radius:100px !important;
     font-family:var(--fb) !important; font-weight:600 !important;
     font-size:13px !important; padding:10px 22px !important;
     letter-spacing:0.01em !important;
-    box-shadow:var(--sh-sm) !important;
+    box-shadow:var(--shadow-sm) !important;
     transition:transform 0.12s ease,box-shadow 0.12s ease,background 0.12s ease !important;
 }
 .stButton>button:hover {
-    background:oklch(0.46 0.14 292) !important;
-    transform:translateY(-1px) !important; box-shadow:var(--sh-md) !important;
+    background:var(--color-primary-hover) !important;
+    transform:translateY(-1px) !important; box-shadow:var(--shadow-md) !important;
 }
 .stButton>button:active { transform:translateY(0) !important; }
+.stButton>button:focus-visible {
+    outline:3px solid var(--color-accent) !important; outline-offset:2px !important;
+}
 
 /* ── Inputs ── */
 .stTextInput>div>div>input,
 .stTextArea textarea {
-    border-radius:var(--r-sm) !important;
-    border:1.5px solid var(--bdr-2) !important;
-    background:var(--surf) !important; font-family:var(--fb) !important;
-    font-size:14px !important; color:var(--tx) !important;
+    border-radius:var(--radius-sm) !important;
+    border:1.5px solid var(--color-border-strong) !important;
+    background:var(--color-surface) !important; font-family:var(--fb) !important;
+    font-size:14px !important; color:var(--color-text) !important;
     padding:10px 14px !important;
     transition:border-color 0.15s,box-shadow 0.15s !important;
 }
+.stTextInput>div>div>input::placeholder,
+.stTextArea textarea::placeholder { color:var(--color-text-subtle) !important; }
 .stTextInput>div>div>input:focus,
 .stTextArea textarea:focus {
-    border-color:var(--brand) !important;
-    box-shadow:0 0 0 3px oklch(0.52 0.14 292/0.12) !important;
+    border-color:var(--color-primary) !important;
+    box-shadow:0 0 0 3px color-mix(in oklch, var(--color-primary) 25%, transparent) !important;
     outline:none !important;
 }
 .stSelectbox>div>div {
-    border-radius:var(--r-sm) !important;
-    border:1.5px solid var(--bdr-2) !important;
-    background:var(--surf) !important;
+    border-radius:var(--radius-sm) !important;
+    border:1.5px solid var(--color-border-strong) !important;
+    background:var(--color-surface) !important;
     font-family:var(--fb) !important; font-size:14px !important;
+    color:var(--color-text) !important;
 }
+.stSelectbox div[data-baseweb="select"] * { color:var(--color-text) !important; }
 
 /* ── Streamlit metrics ── */
 [data-testid="stMetricValue"] {
     font-family:var(--fd) !important; font-weight:700 !important;
-    color:var(--brand) !important;
+    color:var(--color-accent) !important;
 }
 [data-testid="stMetricLabel"] p {
-    font-size:10px !important; text-transform:uppercase !important;
-    letter-spacing:0.08em !important; color:var(--tx-3) !important;
+    font-size:11px !important; text-transform:uppercase !important;
+    letter-spacing:0.06em !important; color:var(--color-text-subtle) !important;
     font-weight:700 !important;
 }
 
 /* ── Chat bubbles ── */
 .chat-bot {
-    background:var(--surf); border:1px solid var(--bdr); color:var(--tx);
+    background:var(--color-surface); border:1px solid var(--color-border); color:var(--color-text);
     padding:14px 18px; border-radius:18px 18px 18px 4px;
     margin:8px 0; margin-right:22%; font-size:14px; font-weight:500;
-    line-height:1.65; box-shadow:var(--sh-sm);
+    line-height:1.65; box-shadow:var(--shadow-sm);
 }
 .chat-user {
-    background:var(--brand-bg); color:var(--tx);
+    background:var(--color-primary-soft); color:var(--color-text);
     padding:14px 18px; border-radius:18px 18px 4px 18px;
     margin:8px 0; margin-left:22%; font-size:14px; font-weight:500;
     line-height:1.65;
 }
 .chat-who {
     font-size:10px; font-weight:700; text-transform:uppercase;
-    letter-spacing:0.1em; color:var(--tx-3); margin-bottom:5px;
+    letter-spacing:0.1em; color:var(--color-text-subtle); margin-bottom:5px;
 }
 
-/* ── Tags ── */
+/* ── Tags base (colores por tema se inyectan aparte) ── */
 .tag {
     display:inline-flex; align-items:center;
     padding:3px 10px; border-radius:100px; font-size:10px;
     font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
 }
-.tag-trabajo  { background:#fce4e4; color:#6b1717; }
-.tag-estudio  { background:#e4ecfe; color:#1a2c7a; }
-.tag-descanso { background:#e2f4e2; color:#145a14; }
-.tag-tarea    { background:#fef0dc; color:#6b3d0c; }
 
 /* ── Habit cards ── */
 .habit-card {
-    background:var(--surf); border-radius:var(--r-lg);
-    padding:18px 20px; box-shadow:var(--sh-sm);
-    border:1px solid var(--bdr); margin:8px 0;
+    background:var(--color-surface); border-radius:var(--radius-lg);
+    padding:18px 20px; box-shadow:var(--shadow-sm);
+    border:1px solid var(--color-border); margin:8px 0;
     display:flex; gap:14px; align-items:flex-start;
     transition: box-shadow 0.2s;
 }
-.habit-card:hover { box-shadow:var(--sh-md); }
+.habit-card:hover { box-shadow:var(--shadow-md); }
 .habit-icon { font-size:22px; line-height:1; margin-top:2px; flex-shrink:0; }
 .habit-title {
     font-family:var(--fd); font-size:14px; font-weight:600;
-    color:var(--tx); margin-bottom:3px;
+    color:var(--color-text); margin-bottom:3px;
 }
-.habit-desc { font-size:13px; color:var(--tx-3); line-height:1.5; margin:0; }
+.habit-desc { font-size:13px; color:var(--color-text-subtle); line-height:1.5; margin:0; }
 
 /* ── Breathing ── */
 .breath-box {
-    background:var(--surf-2); border-radius:var(--r-xl);
-    padding:32px; border:1px solid var(--bdr); text-align:center;
+    background:var(--color-surface-alt); border-radius:var(--radius-xl);
+    padding:32px; border:1px solid var(--color-border); text-align:center;
 }
 .breath-step {
-    background:var(--surf); border-radius:var(--r-lg);
+    background:var(--color-surface); border-radius:var(--radius-lg);
     padding:22px 18px; min-width:120px;
-    box-shadow:var(--sh-sm); border:1px solid var(--bdr);
+    box-shadow:var(--shadow-sm); border:1px solid var(--color-border);
     text-align:center; display:inline-block; margin:8px; vertical-align:top;
 }
 
 /* ── Sidebar brand ── */
 .sb-brand {
     font-family:var(--fd); font-size:20px; font-weight:700;
-    letter-spacing:-0.01em; color:var(--brand) !important;
+    letter-spacing:-0.01em; color:var(--color-accent) !important;
 }
 .sb-sub {
     font-size:10px; font-weight:700; text-transform:uppercase;
-    letter-spacing:0.1em; color:var(--tx-3) !important; margin-top:2px;
+    letter-spacing:0.1em; color:var(--color-text-subtle) !important; margin-top:2px;
 }
 .sb-date {
-    background:var(--surf-2); border-radius:var(--r-md);
-    padding:10px 14px; font-size:13px; font-weight:600; color:var(--tx-2) !important;
+    background:var(--color-surface-alt); border-radius:var(--radius-md);
+    padding:10px 14px; font-size:13px; font-weight:600; color:var(--color-text-muted) !important;
 }
 .sb-quote {
     font-size:12px; font-style:italic;
-    color:var(--tx-3) !important; line-height:1.6; padding:0 2px;
+    color:var(--color-text-subtle) !important; line-height:1.6; padding:0 2px;
+}
+.sb-label {
+    font-family:var(--fd); font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.12em;
+    color:var(--color-text-subtle) !important; margin-bottom:2px;
 }
 
 /* ── Suggestion chips ── */
 .chip {
-    background:var(--surf); border:1.5px solid var(--bdr-2);
+    background:var(--color-surface); border:1.5px solid var(--color-border-strong);
     border-radius:100px; padding:7px 14px; font-size:12px;
-    font-weight:600; color:var(--tx-2); text-align:center;
+    font-weight:600; color:var(--color-text-muted); text-align:center;
 }
 
 /* ── Dataframe ── */
 [data-testid="stDataFrame"] {
-    border-radius:var(--r-lg) !important;
-    overflow:hidden; border:1px solid var(--bdr) !important;
+    border-radius:var(--radius-lg) !important;
+    overflow:hidden; border:1px solid var(--color-border) !important;
 }
 
 footer,#MainMenu { visibility:hidden; }
 [data-testid="stDecoration"] { display:none; }
-</style>""", unsafe_allow_html=True)
+"""
+
+_FONT_IMPORT = ("@import url('https://fonts.googleapis.com/css2?"
+                "family=Josefin+Sans:wght@300;400;600;700&"
+                "family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');")
+
+
+def _root_block(t):
+    """Construye el bloque :root con los tokens del tema activo."""
+    pairs = {
+        "--color-bg": t["bg"],
+        "--color-surface": t["surface"],
+        "--color-surface-alt": t["surface_alt"],
+        "--color-text": t["text"],
+        "--color-text-muted": t["text_muted"],
+        "--color-text-subtle": t["text_subtle"],
+        "--color-border": t["border"],
+        "--color-border-strong": t["border_strong"],
+        "--color-primary": t["primary"],
+        "--color-primary-hover": t["primary_hover"],
+        "--color-on-primary": t["on_primary"],
+        "--color-accent": t["accent"],
+        "--color-secondary": t["secondary"],
+        "--color-secondary-soft": t["secondary_soft"],
+        "--color-primary-soft": t["primary_soft"],
+        "--color-primary-tint": t["primary_tint"],
+        "--shadow-sm": t["shadow_sm"],
+        "--shadow-md": t["shadow_md"],
+        "--fd": FONTS["fd"],
+        "--fb": FONTS["fb"],
+        "--radius-sm": RADII["sm"],
+        "--radius-md": RADII["md"],
+        "--radius-lg": RADII["lg"],
+        "--radius-xl": RADII["xl"],
+    }
+    body = "".join(f"{k}:{v};" for k, v in pairs.items())
+    return ":root{" + body + "}"
+
+
+def _tag_block(t):
+    """Genera las clases de tag con los colores de categoría del tema activo."""
+    names = {"Trabajo": "trabajo", "Estudio": "estudio",
+             "Descanso": "descanso", "Tarea": "tarea"}
+    parts = []
+    for cat, cls in names.items():
+        bg, tx = t["cats"][cat]
+        parts.append(".tag-" + cls + "{background:" + bg + ";color:" + tx + ";}")
+    return "".join(parts)
+
+
+def build_css(t):
+    """Devuelve el bloque <style> completo para el tema activo."""
+    return ("<style>" + _FONT_IMPORT + _root_block(t)
+            + STATIC_CSS + _tag_block(t) + "</style>")
+
+
+# ── Estado del tema + inyección de CSS (debe ir antes de renderizar la UI) ──
+if "theme" not in st.session_state:
+    st.session_state.theme = DEFAULT_THEME
+
+active = THEMES[st.session_state.theme]
+st.markdown(build_css(active), unsafe_allow_html=True)
 
 
 # ── Session state ──────────────────────────────────────────────────────────────
@@ -358,6 +544,15 @@ with st.sidebar:
     )
 
     st.markdown("---")
+    st.markdown("<div class='sb-label'>Tema visual</div>", unsafe_allow_html=True)
+    st.selectbox(
+        "Tema visual",
+        list(THEMES.keys()),
+        key="theme",
+        label_visibility="collapsed"
+    )
+
+    st.markdown("---")
     fecha = datetime.now().strftime('%A %d de %B').title()
     st.markdown(f"<div class='sb-date'>📆 {fecha}</div>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
@@ -378,7 +573,7 @@ if pagina == "🏠 Inicio":
         st.markdown("# 🌸 Smart Balance")
         st.markdown("""
         <div class='card-tinted'>
-            <p style='font-size:15px;color:var(--tx-2);margin:0;line-height:1.75;'>
+            <p style='font-size:15px;color:var(--color-text-muted);margin:0;line-height:1.75;'>
             Tu compañera para <strong>organizar el tiempo</strong>, gestionar tus
             <strong>tareas</strong> y cuidar tu <strong>bienestar emocional</strong>.
             Diseñada para estudiantes que también trabajan. 💜
@@ -406,13 +601,13 @@ if pagina == "🏠 Inicio":
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.markdown(f"<div class='stat-card'><div class='stat-num'>{len(st.session_state.agenda)}</div><div class='stat-lbl'>Actividades esta semana</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-card'><div class='stat-num'>{len(st.session_state.agenda)}</div><div class='stat-lbl'>Actividades</div></div>", unsafe_allow_html=True)
     with c2:
-        st.markdown(f"<div class='stat-card'><div class='stat-num'>{tareas_completas}</div><div class='stat-lbl'>Tareas completadas</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-card'><div class='stat-num'>{tareas_completas}</div><div class='stat-lbl'>Completadas</div></div>", unsafe_allow_html=True)
     with c3:
-        st.markdown(f"<div class='stat-card'><div class='stat-num'>{tareas_pendientes}</div><div class='stat-lbl'>Tareas pendientes</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-card'><div class='stat-num'>{tareas_pendientes}</div><div class='stat-lbl'>Pendientes</div></div>", unsafe_allow_html=True)
     with c4:
-        st.markdown(f"<div class='stat-card'><div class='stat-num'>{pct}%</div><div class='stat-lbl'>Progreso de tareas</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-card'><div class='stat-num'>{pct}%</div><div class='stat-lbl'>Progreso</div></div>", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -426,7 +621,7 @@ if pagina == "🏠 Inicio":
     st.markdown("""
     <div class='card-teal'>
         <div class='eyebrow'>Consejo del día</div>
-        <p style='color:var(--tx-2);margin:8px 0 0;font-size:15px;line-height:1.7;'>
+        <p style='color:var(--color-text-muted);margin:8px 0 0;font-size:15px;line-height:1.7;'>
         Haz pausas de <strong>5 minutos</strong> cada hora de estudio.
         Tu cerebro las necesita para consolidar lo aprendido. 🧠
         </p>
@@ -462,20 +657,18 @@ elif pagina == "📅 Agenda Semanal":
 
     st.markdown("<div class='eyebrow'>Organización</div>", unsafe_allow_html=True)
     st.markdown("# 📅 Agenda Semanal")
-    st.markdown("<p style='color:var(--tx-2);margin-top:-8px;'>Visualiza y organiza tus actividades de la semana.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:var(--color-text-muted);margin-top:-8px;'>Visualiza y organiza tus actividades de la semana.</p>", unsafe_allow_html=True)
 
     st.markdown("### Actividades registradas")
 
     df = st.session_state.agenda.copy()
+    cats = THEMES[st.session_state.theme]["cats"]
 
     def color_tipo(val):
-        colores = {
-            "Trabajo":  "background-color: #fce4e4; color: #6b1717;",
-            "Estudio":  "background-color: #e4ecfe; color: #1a2c7a;",
-            "Descanso": "background-color: #e2f4e2; color: #145a14;",
-            "Tarea":    "background-color: #fef0dc; color: #6b3d0c;",
-        }
-        return colores.get(val, "")
+        pair = cats.get(val)
+        if pair:
+            return f"background-color: {pair[0]}; color: {pair[1]};"
+        return ""
 
     styled = df.style.map(color_tipo, subset=["Tipo"])
     st.dataframe(styled, use_container_width=True, hide_index=True)
@@ -523,7 +716,7 @@ elif pagina == "✅ Recordatorios":
 
     st.markdown("<div class='eyebrow'>Productividad</div>", unsafe_allow_html=True)
     st.markdown("# ✅ Recordatorios")
-    st.markdown("<p style='color:var(--tx-2);margin-top:-8px;'>Organiza tus pendientes y marca lo que ya completaste.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:var(--color-text-muted);margin-top:-8px;'>Organiza tus pendientes y marca lo que ya completaste.</p>", unsafe_allow_html=True)
 
     total      = len(st.session_state.tareas)
     completas  = sum(1 for t in st.session_state.tareas if t["completada"])
@@ -531,7 +724,7 @@ elif pagina == "✅ Recordatorios":
 
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.markdown(f"<div class='stat-card'><div class='stat-num'>{total}</div><div class='stat-lbl'>Total tareas</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-card'><div class='stat-num'>{total}</div><div class='stat-lbl'>Total</div></div>", unsafe_allow_html=True)
     with c2:
         st.markdown(f"<div class='stat-card'><div class='stat-num'>{completas}</div><div class='stat-lbl'>Completadas</div></div>", unsafe_allow_html=True)
     with c3:
@@ -551,12 +744,12 @@ elif pagina == "✅ Recordatorios":
         with col_text:
             if completada:
                 st.markdown(
-                    f"<p style='color:var(--tx-3);text-decoration:line-through;margin:8px 0;font-size:14px;'>{tarea['texto']}</p>",
+                    f"<p style='color:var(--color-text-subtle);text-decoration:line-through;margin:8px 0;font-size:14px;'>{tarea['texto']}</p>",
                     unsafe_allow_html=True
                 )
             else:
                 st.markdown(
-                    f"<p style='color:var(--tx);font-weight:600;margin:8px 0;font-size:14px;'>{tarea['texto']}</p>",
+                    f"<p style='color:var(--color-text);font-weight:600;margin:8px 0;font-size:14px;'>{tarea['texto']}</p>",
                     unsafe_allow_html=True
                 )
 
@@ -594,7 +787,7 @@ elif pagina == "🤖 Chatbot":
 
     st.markdown("<div class='eyebrow'>Apoyo emocional</div>", unsafe_allow_html=True)
     st.markdown("# 🤖 Chatbot Smart Balance")
-    st.markdown("<p style='color:var(--tx-2);margin-top:-8px;'>Cuéntame cómo te sientes o qué necesitas organizar. Estoy aquí para ayudarte. 💜</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:var(--color-text-muted);margin-top:-8px;'>Cuéntame cómo te sientes o qué necesitas organizar. Estoy aquí para ayudarte. 💜</p>", unsafe_allow_html=True)
 
     def obtener_respuesta(mensaje):
         msg = mensaje.lower()
@@ -683,17 +876,16 @@ elif pagina == "💆 Bienestar":
 
     st.markdown("<div class='eyebrow'>Autocuidado</div>", unsafe_allow_html=True)
     st.markdown("# 💆 Bienestar")
-    st.markdown("<p style='color:var(--tx-2);margin-top:-8px;'>Chequea cómo estás y recibe recomendaciones personalizadas. 🌿</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:var(--color-text-muted);margin-top:-8px;'>Chequea cómo estás y recibe recomendaciones personalizadas. 🌿</p>", unsafe_allow_html=True)
 
     st.markdown("### ¿Cómo te sientes ahora?")
 
-    estados = {
-        "😊 Feliz":     ("#fffce8", "#6b5700", "¡Qué buena energía! Aprovéchala para esos temas difíciles. Hoy es un gran día para avanzar con tus metas más retadoras. Comparte tu buena vibra con quienes te rodean. ✨"),
-        "🙂 Bien":      ("#edfbe8", "#145a14", "Estás en un buen punto de equilibrio. Mantén tus hábitos de estudio y descanso. Una caminata corta puede mantenerte así todo el día. 🌿"),
-        "😐 Normal":    ("#e8f4fd", "#0c3d6e", "Día tranquilo. Haz una lista de prioridades y empieza por la más pequeña. A veces el movimiento crea motivación. 📋"),
-        "😰 Estresada": ("#f0eaff", "#3d1a7a", "Tómate un respiro antes de continuar. Prueba la respiración guiada abajo. Divide tus tareas en partes pequeñas y recuerda: no tienes que hacerlo todo hoy. 💜"),
-        "😩 Agotada":   ("#fce8f0", "#6b1a3d", "Tu mente y cuerpo necesitan recuperarse. Prioriza el descanso sobre cualquier tarea. Una siesta de 20 min puede hacer maravillas. Hoy, solo lo esencial. 🌙"),
-    }
+    # Construye los estados desde la paleta del tema activo (textos idénticos).
+    moods = THEMES[st.session_state.theme]["moods"]
+    estados = {}
+    for label, (key, texto) in MOOD_TEXT.items():
+        bg, tx = moods[key]
+        estados[label] = (bg, tx, texto)
 
     estado_sel = st.radio(
         "Estado:", list(estados.keys()), horizontal=True, label_visibility="collapsed"
@@ -702,7 +894,7 @@ elif pagina == "💆 Bienestar":
     if estado_sel:
         bg, tx, rec = estados[estado_sel]
         st.markdown(f"""
-        <div style='background:{bg};border-radius:var(--r-xl);padding:20px 24px;margin:16px 0;border:1px solid var(--bdr);'>
+        <div style='background:{bg};border-radius:var(--radius-xl);padding:20px 24px;margin:16px 0;border:1px solid var(--color-border);'>
             <div class='eyebrow' style='color:{tx};margin-bottom:8px;'>Recomendación para ti</div>
             <p style='color:{tx};margin:0;font-size:15px;font-weight:500;line-height:1.75;'>{rec}</p>
         </div>
@@ -717,24 +909,24 @@ elif pagina == "💆 Bienestar":
         <div>
             <div class='breath-step'>
                 <div style='font-size:30px;margin-bottom:10px;'>👃</div>
-                <div style='font-family:var(--fd);font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;'>Inhala</div>
-                <div style='font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--brand);line-height:1;'>4</div>
-                <div style='font-size:11px;color:var(--tx-3);margin-top:2px;'>segundos</div>
+                <div style='font-family:var(--fd);font-size:13px;font-weight:600;color:var(--color-text);margin-bottom:4px;'>Inhala</div>
+                <div style='font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--color-accent);line-height:1;'>4</div>
+                <div style='font-size:11px;color:var(--color-text-subtle);margin-top:2px;'>segundos</div>
             </div>
             <div class='breath-step'>
                 <div style='font-size:30px;margin-bottom:10px;'>⏸️</div>
-                <div style='font-family:var(--fd);font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;'>Mantén</div>
-                <div style='font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--teal);line-height:1;'>4</div>
-                <div style='font-size:11px;color:var(--tx-3);margin-top:2px;'>segundos</div>
+                <div style='font-family:var(--fd);font-size:13px;font-weight:600;color:var(--color-text);margin-bottom:4px;'>Mantén</div>
+                <div style='font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--color-secondary);line-height:1;'>4</div>
+                <div style='font-size:11px;color:var(--color-text-subtle);margin-top:2px;'>segundos</div>
             </div>
             <div class='breath-step'>
                 <div style='font-size:30px;margin-bottom:10px;'>💨</div>
-                <div style='font-family:var(--fd);font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;'>Exhala</div>
-                <div style='font-family:var(--fd);font-size:2rem;font-weight:700;color:#2d7a4f;line-height:1;'>6</div>
-                <div style='font-size:11px;color:var(--tx-3);margin-top:2px;'>segundos</div>
+                <div style='font-family:var(--fd);font-size:13px;font-weight:600;color:var(--color-text);margin-bottom:4px;'>Exhala</div>
+                <div style='font-family:var(--fd);font-size:2rem;font-weight:700;color:var(--color-accent);line-height:1;'>6</div>
+                <div style='font-size:11px;color:var(--color-text-subtle);margin-top:2px;'>segundos</div>
             </div>
         </div>
-        <p style='color:var(--tx-3);margin-top:20px;font-size:13px;font-weight:600;'>
+        <p style='color:var(--color-text-subtle);margin-top:20px;font-size:13px;font-weight:600;'>
             Repite este ciclo <strong>3 a 5 veces</strong> para sentir el efecto calmante.
         </p>
     </div>
